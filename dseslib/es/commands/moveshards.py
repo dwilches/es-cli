@@ -27,7 +27,7 @@ def _print_some_shards(node, shards, num_shards, indentation, reverse = False):
 def execute(args):
     # Get the details of the node passed in --from or --to
     partial_name = args.from_node if args.from_node else args.to_node
-    hot_nodes = esnodes.get_nodes(True, False)
+    hot_nodes = esnodes.get_nodes(True, False, False)
     matches = [ node_name for node_name in hot_nodes.keys() if partial_name in node_name]
 
     if len(matches) == 0:
