@@ -19,8 +19,8 @@ def get_dates_hot_nodes():
     return set([ match.group(1) for match in matches if match ])
 
 
-def get_indices(include_hot = True, include_warm = False):
-    shards = esshards.get_shards(include_hot, include_warm)
+def get_indices(include_hot = True, include_warm = False, include_percolate = False):
+    shards = esshards.get_shards(include_hot, include_warm, include_percolate)
     return set([ shard['index'] for shard in shards ])
 
 

@@ -17,7 +17,7 @@ def _match_to_shard(re_match):
         'node': re_match.group('node')}
 
 
-def get_shards(include_hot = True, include_warm = False, include_all_status = False):
+def get_shards(include_hot = True, include_warm = False, include_percolate = False, include_all_status = False):
     env = es_config.env()
     shard_regex = r'^(?P<index>\S+)\s+' \
                   r'(?P<numshard>\d+)\s+' \
@@ -26,7 +26,7 @@ def get_shards(include_hot = True, include_warm = False, include_all_status = Fa
                   r'\d+\s+' \
                   r'(?P<size>\S+)\s+' \
                   r'\S+\s+' \
-                  r'(?P<node>{}-es-data-(?P<nodetype>hot|warm)-\S+)\s*' \
+                  r'(?P<node>{}-es-(?P<nodetype>data-hot|data-warm|percolate)-\S+)\s*' \
                   r'(?P<extra>.*)$'
     pattern = re.compile(shard_regex.format(env))
     r = requests.get("{}/_cat/shards".format(es_config.es_host()), stream=True)
@@ -37,10 +37,13 @@ def get_shards(include_hot = True, include_warm = False, include_all_status = Fa
         match = pattern.match(shard_line)
         if match:
             shard = _match_to_shard(match)
-            if include_hot and shard['node-type'] == 'hot':
+            if include_hot and shard['node-type'] == 'data-hot':
                 shards.append(shard)
                 next
-            if include_warm and shard['node-type'] == 'warm':
+            if include_warm and shard['node-type'] == 'data-warm':
+                shards.append(shard)
+                next
+            if include_percolate and shard['node-type'] == 'percolate':
                 shards.append(shard)
                 next
 

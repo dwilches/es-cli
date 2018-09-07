@@ -22,7 +22,7 @@ def _parse_args():
                                              "(which can happen if disks are so full that they reach the high " \
                                              "watermark of ES, which then decides it will stop accepting new data).")
     sp_shards = sp.add_parser('shards',
-                              help="lists shards in hot nodes")
+                              help="lists shards in hot, warm, and percolate nodes")
     sp_version = sp.add_parser('version',
                                help="print eslib's version")
 
@@ -84,14 +84,19 @@ def _parse_args():
                               help="remove any blocks from the indices on hot nodes")
 
     # Shards
+    group = sp_shards.add_mutually_exclusive_group(required=False)
     sp_shards.add_argument('-s', '--summary',
                            dest='summary',
                            action='store_true',
                            help="Show summarized distribution of shards per node")
-    sp_shards.add_argument('-w', '--warm',
-                           dest='only_warm',
-                           action='store_true',
-                           help="Target warm nodes instead of hot nodes")
+    group.add_argument('-w', '--warm',
+                       dest='only_warm',
+                       action='store_true',
+                       help="Target warm nodes instead of hot nodes")
+    group.add_argument('-p', '--percolate',
+                       dest='only_percolate',
+                       action='store_true',
+                       help="Target percolator nodes instead of hot nodes")
 
     return parser.parse_args()
 

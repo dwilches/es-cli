@@ -7,9 +7,11 @@ from ..utils import humansize
 
 def execute(args):
     if args.only_warm:
-        shards = esshards.get_shards(include_all_status=True, include_hot=False, include_warm=True)
+        shards = esshards.get_shards(include_all_status=True, include_hot=False, include_warm=True, include_percolate=False)
+    elif args.only_percolate:
+        shards = esshards.get_shards(include_all_status=True, include_hot=False, include_warm=False, include_percolate=True)
     else:
-        shards = esshards.get_shards(include_all_status=True, include_hot=True, include_warm=False)
+        shards = esshards.get_shards(include_all_status=True, include_hot=True, include_warm=False, include_percolate=False)
 
     if args.summary:
         show_summary(shards)
