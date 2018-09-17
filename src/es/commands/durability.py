@@ -10,8 +10,8 @@ from ..utils import config as es_config
 
 def change_status(url, new_status):
     r = requests.put(url,
-                     data = json.dumps({'index': {'translog': {'durability': new_status}}}),
-                     headers = {'Content-Type': 'application/json'})
+                     data=json.dumps({'index': {'translog': {'durability': new_status}}}),
+                     headers={'Content-Type': 'application/json'})
     r.raise_for_status()
     response = r.json()
     print("acknowledged: {}".format(response['acknowledged']))

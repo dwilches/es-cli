@@ -1,7 +1,7 @@
 
 import re
 
-_units = { 'b': 1, 'kb': 1024, 'mb': 1024*1024, 'gb': 1024*1024*1024 }
+_units = {'b': 1, 'kb': 1024, 'mb': 1024*1024, 'gb': 1024*1024*1024}
 _re_size = re.compile(r"(?P<value>[\d.]+)(?P<unit>\S*)")
 
 

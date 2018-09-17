@@ -24,15 +24,14 @@ def _get_nodes_by_type(nodetype):
     with open(os.devnull, 'w') as devnull:
         output = subprocess.check_output(command, stderr=devnull)
 
-    pattern = re.compile(r'(?P<node>{}-es-(?P<nodetype>data-warm|data-hot|percolate)-\S+):\s+' \
+    pattern = re.compile(r'(?P<node>{}-es-(?P<nodetype>data-warm|data-hot|percolate)-\S+):\s+'
                          r'ec2.placement_availability_zone:\s+us-west-2(?P<zone>[abc])'.format(env))
-    return [ _match_to_node(match) for match in re.finditer(pattern, output.decode('utf8')) ]
+    return [_match_to_node(match) for match in re.finditer(pattern, output.decode('utf8'))]
 
 
-def get_nodes(include_hot = True, include_warm = True, include_percolate = True):
+def get_nodes(include_hot=True, include_warm=True, include_percolate=True):
     hot_nodes = _get_nodes_by_type('data_hot') if include_hot else []
     warm_nodes = _get_nodes_by_type('data_warm') if include_warm else []
     percolate_nodes = _get_nodes_by_type('percolate') if include_percolate else []
 
     return {node['node']: node for node in hot_nodes + warm_nodes + percolate_nodes}
-

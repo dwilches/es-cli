@@ -7,8 +7,8 @@ from ..utils import config as es_config
 
 def change_status(url, new_status):
     r = requests.put(url,
-                     data = json.dumps({'transient': {'cluster.routing.allocation.enable': new_status}}),
-                     headers = {'Content-Type': 'application/json'})
+                     data=json.dumps({'transient': {'cluster.routing.allocation.enable': new_status}}),
+                     headers={'Content-Type': 'application/json'})
     r.raise_for_status()
     response = r.json()
     print("acknowledged: {}".format(response['acknowledged']))
