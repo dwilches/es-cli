@@ -57,9 +57,11 @@ def _parse_args():
                        help="shows the current setting for durability of today's indices (default)")
     group.add_argument('--async',
                        action='store_true',
+                       dest='set_async',
                        help="changes the durability of today's indices to async")
     group.add_argument('--request',
                        action='store_true',
+                       dest='set_request',
                        help="changes the durability of today's indices to request")
     sp_durability.add_argument('--date',
                                help="operate on another day's indices")

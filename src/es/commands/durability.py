@@ -39,10 +39,10 @@ def execute(args):
     url = "{}/{}-*-{}/_settings".format(es_config.es_host(),
                                         es_config.index_prefix(), date)
 
-    if args.async:
+    if args.set_async:
         change_status(url, 'async')
         show_current_status(url)
-    elif args.request:
+    elif args.set_request:
         change_status(url, 'request')
         show_current_status(url)
     else:
