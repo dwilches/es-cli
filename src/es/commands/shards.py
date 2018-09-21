@@ -39,10 +39,18 @@ def show_details(shards):
 
 def show_summary(shards):
     summarized = esshards.summarize_shards(shards)
+    total_count = 0
+    total_size = 0
 
-    str_format = "{0:40s}\t{1}\t{2}"
+    str_format = "{0:40s}    {1}    {2}"
     print(str_format.format('NODE', 'NUM', 'SIZE'))
     for summary in sorted(summarized, key=lambda s: s.node):
         print(str_format.format(summary.node,
                                 summary.amount,
                                 humansize.stringify(summary.size)))
+        total_count += summary.amount
+        total_size += summary.size
+
+    total_line = str_format.format('TOTAL', total_count, humansize.stringify(total_size))
+    print('-' * len(total_line))
+    print(total_line)
