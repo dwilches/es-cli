@@ -16,7 +16,7 @@ def _match_to_shard(re_match) -> EsShard:
     return EsShard(index=re_match.group('index'),
                    num_shard=re_match.group('numshard'),
                    status=re_match.group('status'),
-                   size=re_match.group('size'),
+                   size=re_match.group('size') or "0",
                    node=re_match.group('node'),
                    shard_type=re_match.group('shardtype'),
                    extra=re_match.group('extra'))
@@ -31,11 +31,13 @@ def get_shards(node_type: NodeType, include_all_status=False, shard_filter=None)
     shard_regex = r'^(?P<index>\S+)\s+' \
                   r'(?P<numshard>\d+)\s+' \
                   r'(?P<shardtype>[pr])\s+' \
-                  r'(?P<status>\S+)\s+' \
-                  r'\d+\s+' \
-                  r'(?P<size>\S+)\s+' \
-                  r'\S+\s+' \
-                  r'(?P<node>\S+)\s*' \
+                  r'(?P<status>\S+)' \
+                  r'(?:' \
+                      r'\s+\d+\s+' \
+                      r'(?P<size>\S+)\s+' \
+                      r'\S+\s+' \
+                      r'(?P<node>\S+)\s*' \
+                  r')?' \
                   r'(?P<extra>.*)$'
     pattern = re.compile(shard_regex.format(env))
     lines = requests.get("{}/_cat/shards".format(es_config.es_host()), stream=True).iter_lines()
@@ -66,7 +68,7 @@ def summarize_shards(shards: List[EsShard]) -> List[SummarizedShards]:
     summaries = []
     for node, sizes in grouped.items():
         total_size = reduce(add, sizes)
-        summaries.append(SummarizedShards(node=node,
+        summaries.append(SummarizedShards(node=node or "(no node)",
                                           size=total_size,
                                           amount=len(sizes)))
     return summaries
@@ -74,7 +76,8 @@ def summarize_shards(shards: List[EsShard]) -> List[SummarizedShards]:
 
 def _shard_matches_filter(shard, included_node_types, shard_filter, include_all_status):
 
-    node_type_matches = (included_node_types & NodeType.HOT and '-hot-' in shard.node) or \
+    node_type_matches = shard.node is None or \
+                        (included_node_types & NodeType.HOT and '-hot-' in shard.node) or \
                         (included_node_types & NodeType.WARM and '-warm-' in shard.node) or \
                         (included_node_types & NodeType.PERCOLATE and '-percolate-' in shard.node)
 
