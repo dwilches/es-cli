@@ -11,8 +11,8 @@ from ..utils import humansize
 
 # Prints the N1 smallest and N2 largest shards in the given node (or viceversa, it doesn't matter)
 def _print_some_shards(node, shards, num_shards, indentation, reverse=False):
-    shards_in_node = [shard for shard in shards if shard['node'] == node]
-    sorted_shards = sorted(shards_in_node, key=lambda x: humansize.parse(x['size']),
+    shards_in_node = [shard for shard in shards if shard.node == node]
+    sorted_shards = sorted(shards_in_node, key=lambda x: humansize.parse(x.size),
                            reverse=reverse)
 
     N = min(num_shards, len(shards_in_node))
@@ -20,11 +20,11 @@ def _print_some_shards(node, shards, num_shards, indentation, reverse=False):
     N2 = N - N1
 
     for shard in sorted_shards[:N1]:
-        print("{}* {} {} ({})".format(indentation, shard['index'], shard['num-shard'], shard['size']))
+        print("{}* {} {} ({})".format(indentation, shard.index, shard.num_shard, shard.size))
     if N1 + N2 < len(shards_in_node):
         print("{}  ...".format(indentation))
     for shard in sorted_shards[-N2:]:
-        print("{}* {} {} ({})".format(indentation, shard['index'], shard['num-shard'], shard['size']))
+        print("{}* {} {} ({})".format(indentation, shard.index, shard.num_shard, shard.size))
 
 
 def execute(args):
@@ -45,7 +45,7 @@ def execute(args):
     desired_node = hot_nodes[matches[0]]
 
     # Find all other nodes in the same AZ
-    nodes_same_az = [node for node in hot_nodes.values()
+    nodes_same_az = [node['node'] for node in hot_nodes.values()
                      if node['zone'] == desired_node['zone'] and node is not desired_node]
     if len(nodes_same_az) == 0:
         print("There are {} nodes, but none in the same AZ as {}".format(len(hot_nodes), desired_node['node']))
@@ -56,7 +56,7 @@ def execute(args):
     summaries = esshards.summarize_shards(shards)
     shard_distribution: Dict[str, SummarizedShards] = {summary.node: summary for summary in summaries
                                                        if summary.node in nodes_same_az}
-    (curr_num_shards, curr_size) = next(summary for summary in summaries if summary.node == desired_node.node)
+    curr_shards = next(summary for summary in summaries if summary.node == desired_node['node'])
 
     # Find the 3 nodes with fewer shards
     fewer_shards = sorted(shard_distribution, key=lambda x: shard_distribution[x].amount)
@@ -64,7 +64,7 @@ def execute(args):
 
     if args.from_node:
         print("The node {} from where you want to move shards has {} shards ({})."
-              .format(desired_node['node'], curr_num_shards, humansize.stringify(curr_size)))
+              .format(desired_node['node'], curr_shards.amount, humansize.stringify(curr_shards.size)))
         _print_some_shards(desired_node['node'], shards, args.num_shards, '\t')
         print()
         print("From the nodes in the same AZ, these are the {} with fewer shards:".format(args.num_nodes))
@@ -81,7 +81,7 @@ def execute(args):
 
     if args.to_node:
         print("The node to which you want to move shards has {} shards ({})."
-              .format(curr_num_shards, humansize.stringify(curr_size)))
+              .format(curr_shards.amount, humansize.stringify(curr_shards.size)))
         print()
         print("From the nodes in the same AZ, these are the {} with more shards:".format(args.num_nodes))
 
