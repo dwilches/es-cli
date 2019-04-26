@@ -32,7 +32,7 @@ def show_details(shards):
                                 shard.num_shard,
                                 shard.shard_type,
                                 shard.size,
-                                shard.node,
+                                shard.node or "(no node)",
                                 shard.status,
                                 shard.extra))
 
